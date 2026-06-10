@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QA Tower Defense</title>
+
+  <!-- JetBrains Mono — crisp coding font, perfect for a Playwright game -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0d1117;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      /* Subtle grid pattern to fill empty space around the canvas */
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+
+    #game-container {
+      position: relative;
+      /* Drop shadow to lift the canvas off the page */
+      filter: drop-shadow(0 8px 32px rgba(0,0,0,0.7));
+    }
+
+    canvas {
+      display: block;
+      /* Smooth scaling — do NOT use pixelated for non-pixel-art */
+      image-rendering: auto;
+    }
+  </style>
+  <script type="module" crossorigin src="/tower_defense_playwright/assets/index-CCHpG2T2.js"></script>
+</head>
+<body>
+  <div id="game-container"></div>
+</body>
+</html>
