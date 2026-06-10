@@ -24,4 +24,6 @@ const config: Phaser.Types.Core.GameConfig = {
   },
 }
 
-new Phaser.Game(config)
+// Wait for fonts to fully load before Phaser creates any canvas text.
+// Without this, text renders with the fallback system font and looks blurry.
+document.fonts.ready.then(() => new Phaser.Game(config))

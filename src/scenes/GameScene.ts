@@ -4,6 +4,7 @@ import { Tower, TOWER_DEFS } from '../entities/Tower'
 import { Bullet } from '../entities/Bullet'
 import { WaveSystem } from '../systems/WaveSystem'
 import { evaluateLocator } from '../systems/LocatorSystem'
+import { LocatorAutocomplete, buildSuggestions } from '../ui/LocatorAutocomplete'
 import { ENEMY_DEFS } from '../data/enemies'
 import { LEVELS } from '../data/levels'
 import type { DomElement } from '../types'
@@ -86,6 +87,7 @@ export class GameScene extends Phaser.Scene {
   private hoveredEnemy:    Enemy | null = null
 
   private locatorInputEl!: HTMLInputElement
+  private autocomplete!: LocatorAutocomplete
   private locatorFeedback!: Phaser.GameObjects.Text
 
   private waveBtn!:      Phaser.GameObjects.Container
@@ -379,11 +381,13 @@ export class GameScene extends Phaser.Scene {
     container.appendChild(this.locatorInputEl)
 
     this.locatorInputEl.addEventListener('keydown', e => {
-      if (e.key === 'Enter')  this.fireLocator()
+      if (e.key === 'Enter')  { this.autocomplete.hide(); this.fireLocator() }
       if (e.key === 'Escape') this.locatorInputEl.blur()
     })
     this.locatorInputEl.addEventListener('focus', () => this.input.keyboard?.disableGlobalCapture())
     this.locatorInputEl.addEventListener('blur',  () => this.input.keyboard?.enableGlobalCapture())
+
+    this.autocomplete = new LocatorAutocomplete(this.locatorInputEl, container)
 
     // Fire button
     this.kenBtn(W - 68, PY + 44, 120, 34, 'btn-green', '⚡ Disparar', () => this.fireLocator(), 201)
@@ -451,7 +455,13 @@ export class GameScene extends Phaser.Scene {
     enemy.on('pointerout',  () => this.hideInspector())
 
     this.enemies.push(enemy)
+    this.refreshSuggestions()
     return enemy
+  }
+
+  private refreshSuggestions() {
+    const doms = this.enemies.filter(e => e.alive).map(e => e.domData.domNode)
+    this.autocomplete?.update(buildSuggestions(doms))
   }
 
   // ── LOCATOR LOGIC ──────────────────────────────────────────────────────────
@@ -484,6 +494,7 @@ export class GameScene extends Phaser.Scene {
       this.showFeedback(`✓  ${result.message}  [DMG ${result.damage}${bonusTxt}]`, result.isUnique ? '#3fb950' : '#ffc107')
       this.inputBorder('#2ea043', '#30363d', 500)
       this.locatorInputEl.value = ''
+      this.autocomplete.hide()
     } else {
       this.combo = 0
       this.hudCombo.setText('COMBO ×0').setColor('#ce93d8')
@@ -661,6 +672,7 @@ export class GameScene extends Phaser.Scene {
   }
 
   private cleanup() {
+    this.autocomplete?.destroy()
     document.querySelector('#game-container input')?.remove()
   }
 

@@ -8,9 +8,29 @@ export type MatchResult = {
   message: string
 }
 
+// Normalizes getBy* methods to correct camelCase regardless of what the user typed
+// e.g.  getbyrole  →  getByRole    GETBYTEXT  →  getByText
+function normalizeInput(raw: string): string {
+  const s = raw.trim()
+  const lower = s.toLowerCase()
+  const methods: [string, string][] = [
+    ['getbyrole',        'getByRole'],
+    ['getbytext',        'getByText'],
+    ['getbylabel',       'getByLabel'],
+    ['getbyplaceholder', 'getByPlaceholder'],
+    ['getbytestid',      'getByTestId'],
+    ['getbyalttext',     'getByAltText'],
+    ['getbytitle',       'getByTitle'],
+  ]
+  for (const [wrong, correct] of methods) {
+    if (lower.startsWith(wrong)) return correct + s.slice(wrong.length)
+  }
+  return s
+}
+
 // Evalúa si un locator matchea un DomElement concreto
 export function matchLocator(input: string, dom: DomElement): boolean {
-  const s = input.trim()
+  const s = normalizeInput(input)
 
   // #id
   if (s.startsWith('#')) {
@@ -127,7 +147,7 @@ function extractFirstString(s: string): string | null {
 
 // Calcula daño y tipo según el locator
 export function evaluateLocator(input: string, target: DomElement, allEnemyDoms: DomElement[]): MatchResult {
-  const s = input.trim()
+  const s = normalizeInput(input)
   if (!s) return { matched: false, isUnique: false, locatorType: 'unknown', damage: 0, message: 'Escribe un locator.' }
 
   const matched = matchLocator(s, target)
